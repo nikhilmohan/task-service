@@ -31,7 +31,7 @@ public class TaskService {
     public Mono<Object> addTask( Mono<Task> task) {
         return task.flatMap(task1 -> {
             return taskRepository.findByName(task1.getName())
-                    .flatMap(task2 -> Mono.error(new TaskException(409, "CONFLICT!")))
+                    .flatMap(task2 -> Mono.error(new TaskException(409, "Conflict!")))
                     .switchIfEmpty(taskRepository.save(task1));
 
         });
