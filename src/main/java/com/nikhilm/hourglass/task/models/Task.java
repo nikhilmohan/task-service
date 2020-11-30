@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @Document(collection = "tasks")
 public class Task {
     private String id;
+    private String userId;
     private String name;
     private String description;
     @JsonFormat(pattern="yyyy-MM-dd")

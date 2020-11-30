@@ -14,6 +14,7 @@ public class TaskErrorAttributes extends DefaultErrorAttributes {
 
     @Override
     public Map<String, Object> getErrorAttributes(ServerRequest request, boolean includeStackTrace) {
+        log.info("Exception is " + getError(request).getMessage() +":"+ getError(request));
         Map<String, Object> map = super.getErrorAttributes(request, includeStackTrace);
 
         if (getError(request) instanceof TaskException) {
@@ -28,24 +29,40 @@ public class TaskErrorAttributes extends DefaultErrorAttributes {
         }
         log.info("Exception " + getError(request).getMessage() +":"+ getError(request));
 
-        if (getError(request).getMessage().contains("404")) {
-            map.put("exception", getError(request));
-            map.put("message", getError(request).getMessage());
-            map.put("status", HttpStatus.NOT_FOUND);
-            map.put("error", getError(request).getMessage());
-            return map;
+        return createMap(map, getError(request));
+    }
+    public Map<String, Object> createMap(Map<String, Object> map, Throwable throwable) {
+        log.info("Exception message " + throwable.getMessage());
+        String status = "500";
+        if (throwable.getMessage().contains("404")) {
+            status = "404";
         }
-        if (getError(request).getMessage().contains("409")) {
-            map.put("exception", getError(request));
-            map.put("message", getError(request).getMessage());
-            map.put("status", HttpStatus.CONFLICT);
-            map.put("error", getError(request).getMessage());
-            return map;
+        if (throwable.getMessage().contains("409")) {
+
+            status = "409";
         }
-        map.put("exception", getError(request));
-        map.put("message", getError(request).getMessage());
-        map.put("status", HttpStatus.INTERNAL_SERVER_ERROR);
-        map.put("error", getError(request).getMessage());
+
+
+        switch(status)  {
+            case "404":
+                map.put("exception", throwable);
+                map.put("message", throwable.getMessage());
+                map.put("status", HttpStatus.NOT_FOUND);
+                map.put("error", throwable.getMessage());
+                break;
+            case "409":
+                map.put("exception", throwable);
+                map.put("message", throwable.getMessage());
+                map.put("status", HttpStatus.CONFLICT);
+                map.put("error", throwable.getMessage());
+                break;
+            default:
+                map.put("exception", throwable);
+                map.put("message", throwable.getMessage());
+                map.put("status", HttpStatus.INTERNAL_SERVER_ERROR);
+                map.put("error", throwable.getMessage());
+                break;
+        }
         return map;
     }
 }

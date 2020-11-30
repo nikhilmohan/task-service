@@ -17,9 +17,9 @@ public class RouterConfig {
     public RouterFunction<ServerResponse> route(TaskHandler taskHandler)  {
         return RouterFunctions.route(GET("/tasks").and(accept(MediaType.APPLICATION_JSON)),
                 taskHandler::getTasks)
-                .andRoute(POST("/task").and(accept(MediaType.APPLICATION_JSON)),
+                .andRoute(POST("/task/add").and(accept(MediaType.APPLICATION_JSON)),
                         taskHandler::addTask)
-                .andRoute(DELETE("/task").and(accept(MediaType.APPLICATION_JSON)),
+                .andRoute(POST("/task/complete").and(accept(MediaType.APPLICATION_JSON)),
                         taskHandler::completeTask);
 
     }

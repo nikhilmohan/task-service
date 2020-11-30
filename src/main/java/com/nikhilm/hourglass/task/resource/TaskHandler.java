@@ -8,6 +8,8 @@ import com.nikhilm.hourglass.task.repositories.TaskRepository;
 import com.nikhilm.hourglass.task.services.TaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -34,35 +36,56 @@ public class TaskHandler {
     @Autowired
     TaskService taskService;
 
+    @Autowired
+    ReactiveCircuitBreakerFactory factory;
+
+    ReactiveCircuitBreaker rcb;
+
+    public TaskHandler(ReactiveCircuitBreakerFactory factory)   {
+        this.factory = factory;
+        rcb = this.factory.create("task");
+    }
+
+
 
     public Mono<ServerResponse> getTasks(ServerRequest request)   {
+        String user = request.headers().header("user").get(0);
+        log.info("user " + user);
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(taskService.fetchTasks(), TaskResponse.class);
+                .body(taskService.fetchTasksByUser(user), TaskResponse.class);
 
     }
 
     public Mono<ServerResponse> addTask(ServerRequest request) {
-        TaskValidator validator = new TaskValidator();
-
-          Mono<Task> responseBody = request
-                    .bodyToMono(Task.class)
-                    .map(body -> {
-                        if (validator.hasErrors(body)) {
-                          throw new TaskException(400, "wrong input!");
-
-                        }
-                        return body;
+        String user = request.headers().header("user").get(0);
+        log.info("user " + user);
 
 
+//        if (validator.hasErrors(taskMono)) {
+//            throw new TaskException(400, "wrong input!");
+//
+//        }
 
-                    });
 
+//        Mono<Task> responseBody = request
+//                    .bodyToMono(Task.class)
+//                    .map(body -> {
+//                        if (validator.hasErrors(body)) {
+//                          throw new TaskException(400, "wrong input!");
+//
+//                        }
+//                        return body;
+//
+//
+//
+//                    });
+//
 
 //          return ServerResponse.ok()
 //                            .contentType(MediaType.APPLICATION_JSON).build();
 
-            return taskService.addTask(responseBody)
+            return taskService.addTask(request.bodyToMono(Task.class), user)
                     .flatMap(task -> {
                         log.info("Created task" + task);
                         return ServerResponse.created(URI.create("/" + ((Task)(task)).getId()))
@@ -75,17 +98,20 @@ public class TaskHandler {
 
     public Mono<ServerResponse> completeTask(ServerRequest request) {
 
-        Mono<Task> responseBody = request
-                .bodyToMono(Task.class)
-                .map(body -> {
+        String user = request.headers().header("user").get(0);
+        log.info("user " + user);
 
-                    if (body.getName() == null || body.getName().isEmpty()) {
-                        throw new TaskException(400,"wrong input!");
-                    }
-                    return body;
-                });
+//        Mono<Task> responseBody = request
+//                .bodyToMono(Task.class)
+//                .map(body -> {
+//
+//                    if (body.getName() == null || body.getName().isEmpty()) {
+//                        throw new TaskException(400,"wrong input!");
+//                    }
+//                    return body;
+//                });
 
-        return taskService.completeTask(responseBody)
+        return taskService.completeTask(request.bodyToMono(Task.class), user)
                 .then(ServerResponse.noContent().build());
 
     }

@@ -6,7 +6,7 @@ import static java.time.LocalDateTime.now;
 
 public class Event<K, T> {
 
-    public enum Type {ADD, COMPLETE}
+    public enum Type {TASK_ADDED, TASK_COMPLETED}
 
     private Type eventType;
     private K key;
