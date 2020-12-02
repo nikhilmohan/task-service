@@ -61,8 +61,9 @@ public class TaskService {
 
     public Mono<Object> completeTask( Mono<Task> task, String user) {
         return task.flatMap(task1 -> {
-            if (task1.getName() == null || task1.getName().trim().isEmpty()
-                    || (task1.getDescription() == null || task1.getDescription().trim().isEmpty()))   {
+
+            log.info("task " + task1);
+            if (task1.getName() == null || task1.getName().trim().isEmpty())   {
 
                 throw new TaskException(400, "Wrong input!");
             }
