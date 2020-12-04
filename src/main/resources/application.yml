@@ -18,19 +18,22 @@ spring:
     bindings:
       output-tasks:
         destination: tasks
-  kafka.binder:
-    brokers: 127.0.0.1
-    defaultBrokerPort: 9092
+    kafka.binder:
+      brokers: 127.0.0.1
+      defaultBrokerPort: 9092
 
 ---
 spring:
   profile: prod
   data:
     mongodb:
-      host: localhost
-      port: 27018
+      host: mongodb
+      port: 27017
       database: hourglass
   cloud.stream:
     bindings:
       output-tasks:
         destination: tasks
+    kafka.binder:
+      brokers: kafka
+      defaultBrokerPort: 9093
