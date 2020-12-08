@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-service-deploy
+spec:
+  selector:
+    matchLabels:
+      app: task-service
+  replicas: 1
+  template: # template for the pods
+    metadata:
+      labels:
+        app: task-service
+    spec:
+      containers:
+        - name: task-service
+          image: nikmohan81/task-service:latest
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: task-service
+
+spec:
+  # This defines which pods are going to be represented by this Service
+  # The service becomes a network endpoint for either other services
+  # or maybe external users to connect to (eg browser)
+  selector:
+    app: task-service
+
+  ports:
+    - name: http
+      port: 9010
+
+  type: ClusterIP
+
