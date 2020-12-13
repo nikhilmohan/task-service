@@ -1,5 +1,6 @@
 package com.nikhilm.hourglass.task.services;
 
+import com.nikhilm.hourglass.task.exceptions.ErrorMap;
 import com.nikhilm.hourglass.task.exceptions.TaskException;
 import com.nikhilm.hourglass.task.models.Event;
 import com.nikhilm.hourglass.task.models.Task;
@@ -244,6 +245,15 @@ class TaskServiceTest {
                 .expectErrorMessage("Conflict!!!")
                 .verify();
 
+    }
+    @Test
+    public void testErrorMap()   {
+        ErrorMap errorMap = new ErrorMap("400", "Bad request", "TaskException", "400");
+
+        assertEquals("400", errorMap.getError());
+        assertEquals("400", errorMap.getStatus());
+        assertEquals("Bad request", errorMap.getMessage());
+        assertEquals("TaskException", errorMap.getException());
     }
 
 
